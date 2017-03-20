@@ -1,53 +1,42 @@
 package org.pratikpharma.experiments;
 
 
-import lib.sparqy.graph.storage.JenaRemoteSPARQLStore;
-import lib.sparqy.graph.storage.StoreHandler;
-import lib.sparqy.graph.store.Store;
 import org.getalp.lexsema.util.Language;
-import org.pratikpharma.annotatorapi.BioportalAnnotatorFactory;
-import org.pratikpharma.annotatorapi.annotationmodel.DefaultBioPortalAnnotationFactory;
-import org.pratikpharma.annotatorapi.api.BioPortalAnnotationFactory;
-import org.pratikpharma.annotatorapi.api.BioPortalAnnotator;
+import org.json.simple.parser.ParseException;
 import org.pratikpharma.ehealthtask.DirectQuaeroAnnotator;
 import org.pratikpharma.ehealthtask.TaskAnnotator;
 import org.pratikpharma.io.QuaeroRawReader;
-import org.pratikpharma.umls.cui.CUIRetrieval;
-import org.pratikpharma.umls.groups.UMLSGroup;
-import org.pratikpharma.umls.groups.UMLSSemanticGroupsLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sifrproject.annotations.exceptions.NCBOAnnotatorErrorException;
+import org.sifrproject.annotations.umls.UMLSSemanticGroupsLoader;
+import org.sifrproject.annotatorclient.BioportalAnnotatorFactory;
+import org.sifrproject.annotatorclient.api.BioPortalAnnotator;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public class AnnotatorBaseline {
+public final class AnnotatorBaseline {
+    private AnnotatorBaseline() {
+    }
     //parameters.add(new PairImpl<>("apikey","1de0a270-29c5-4dda-b043-7c3580628cd5"));
     //parameters.add(new PairImpl<>("apikey","33cf147d-f54a-4e70-ac32-139af89b609e"));
     //http://data.bioontology.org/annotator
-    private static Logger logger = LoggerFactory.getLogger(AnnotatorBaseline.class);
+    //private static Logger logger = LoggerFactory.getLogger(AnnotatorBaseline.class);
 
-    public static void main(String... args) throws IOException {
-
-        //Setting Up Sparql Endpoint connection for CUI retrieval
-        Store store = new JenaRemoteSPARQLStore("http://localhost:8080/sparql");
-        StoreHandler.registerStoreInstance(store);
-        CUIRetrieval cuiRetrieval = new CUIRetrieval();
+    public static void main(final String... args) throws IOException, NCBOAnnotatorErrorException, ParseException {
 
 
-        Iterable<Map.Entry<String,String>> quaeroCorpus = new QuaeroRawReader("../data/quaero/corpus/test/EMEA").load();
+        @SuppressWarnings("HardcodedFileSeparator") final Iterable<Map.Entry<String,String>> quaeroCorpus = new QuaeroRawReader(args[0]).load();
 
         //Loading type groups
 
-        Map<String, UMLSGroup> groups = UMLSSemanticGroupsLoader.load(AnnotatorBaseline.class.getResourceAsStream("/semgroups.ssv"));
 
-        BioPortalAnnotationFactory annotationFactory = new DefaultBioPortalAnnotationFactory();
-        BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.bioportal.lirmm.fr/annotator", "907d47d9-3a00-4aa7-9111-090112dfab6a");
+        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.stageportal.lirmm.fr/annotator/", "22522d5c-c4fe-45fc-afc6-d43e2e613169");
 
-        for( Map.Entry<String,String> textEntry : quaeroCorpus) {
-            TaskAnnotator taskAnnotator = new DirectQuaeroAnnotator(groups, annotator, annotationFactory,cuiRetrieval);
-            taskAnnotator.annotateText(textEntry.getValue(), textEntry.getKey(), Language.FRENCH, Paths.get("./resultsTest"));
+        for( final Map.Entry<String,String> textEntry : quaeroCorpus) {
+            final TaskAnnotator taskAnnotator = new DirectQuaeroAnnotator(UMLSSemanticGroupsLoader.load(), annotator);
+            //noinspection HardcodedFileSeparator
+            taskAnnotator.annotateText(textEntry.getValue(), textEntry.getKey(), Language.FRENCH, Paths.get(args[1]));
         }
         //logger.info(processedText.toString());
     }

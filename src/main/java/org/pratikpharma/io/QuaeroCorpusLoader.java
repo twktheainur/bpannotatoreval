@@ -15,42 +15,45 @@ import java.util.Optional;
 public class QuaeroCorpusLoader extends CorpusLoaderImpl{
 
     private static final Logger logger = LoggerFactory.getLogger(QuaeroCorpusLoader.class);
+    static final String CANNOT_LOAD_FILE_CONTENTS = "Cannot load file contents: {}";
+    static final String ERROR_WHILE_LISTING_CORPUS_FILES = "Error while listing corpus files: {}";
+    static final String PATH_MUST_POINT_TO_AN_EXISTING_DIRECTORY = "Path must point to an existing directory.";
 
     private final String pathString;
     private final TextProcessor textProcessor;
 
-    public QuaeroCorpusLoader(String path, TextProcessor textProcessor) {
+    public QuaeroCorpusLoader(final String path, final TextProcessor textProcessor) {
         this.pathString = path;
         this.textProcessor = textProcessor;
     }
 
     @Override
     public void load() {
-        Path corpusDirectory = Paths.get(pathString);
+        final Path corpusDirectory = Paths.get(pathString);
         if(Files.exists(corpusDirectory) && Files.isDirectory(corpusDirectory)){
             try {
                 Files.list(corpusDirectory).filter(path -> path.getFileName().toString().endsWith("txt")).forEach(f->{
                     logger.info(f.toString());
                     try {
-                        Optional result = Files.readAllLines(f).stream().reduce(String::concat);
+                        final Optional result = Files.readAllLines(f).stream().reduce(String::concat);
                         if(result.isPresent()){
                             addText(textProcessor.process(result.get().toString(),f.getFileName().toString().split("\\.")[0]));
                         }
-                    } catch (IOException e) {
-                        logger.error("Cannot load file contents: {}",e.getLocalizedMessage());
+                    } catch (final IOException e) {
+                        logger.error(CANNOT_LOAD_FILE_CONTENTS,e.getLocalizedMessage());
                     }
                 });
-            } catch (IOException e) {
-                logger.error("Error while listing corpus files: {}",e.getLocalizedMessage());
+            } catch (final IOException e) {
+                logger.error(ERROR_WHILE_LISTING_CORPUS_FILES,e.getLocalizedMessage());
             }
         } else {
-            logger.error("Path must point to an existing directory.");
+            logger.error(PATH_MUST_POINT_TO_AN_EXISTING_DIRECTORY);
         }
 
     }
 
     @Override
-    public CorpusLoader loadNonInstances(boolean b) {
+    public CorpusLoader loadNonInstances(final boolean b) {
         return this;
     }
 }
