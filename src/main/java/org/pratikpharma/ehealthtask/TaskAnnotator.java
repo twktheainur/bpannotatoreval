@@ -1,4 +1,4 @@
-src/main/java/org/pratikpharma/experiments/AnnotatorBaseline.javapackage org.pratikpharma.ehealthtask;
+package org.pratikpharma.ehealthtask;
 
 import org.getalp.lexsema.io.document.loader.CorpusLoader;
 import org.getalp.lexsema.similarity.Text;
