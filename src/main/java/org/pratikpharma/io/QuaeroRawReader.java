@@ -1,4 +1,4 @@
-package fr.lirmm.advanse.io;
+package org.pratikpharma.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,8 @@ public class QuaeroRawReader implements Iterable<Map.Entry<String,String>> {
     private final Map<String,String> texts;
 
 
-    public QuaeroRawReader(String path) {
-        this.pathString = path;
+    public QuaeroRawReader(final String path) {
+        pathString = path;
         texts = new HashMap<>();
     }
 
@@ -31,21 +31,21 @@ public class QuaeroRawReader implements Iterable<Map.Entry<String,String>> {
                 Files.list(corpusDirectory).filter(path -> path.getFileName().toString().endsWith("txt")).forEach(f->{
                     logger.info(f.toString());
                     try {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for(String line: Files.readAllLines(f)){
-                            stringBuilder.append(line).append("\n");
+                        final StringBuilder stringBuilder = new StringBuilder();
+                        for(final String line: Files.readAllLines(f)){
+                            stringBuilder.append(line).append(System.lineSeparator());
                         }
-                        String result = stringBuilder.toString();
+                        final String result = stringBuilder.toString();
                         texts.put(f.getFileName().toString().split("\\.")[0], result);
-                    } catch (IOException e) {
-                        logger.error("Cannot load file contents: {}",e.getLocalizedMessage());
+                    } catch (final IOException e) {
+                        logger.error("Cannot read file {}",e.getLocalizedMessage());
                     }
                 });
-            } catch (IOException e) {
-                logger.error("Error while listing corpus files: {}",e.getLocalizedMessage());
+            } catch (final IOException e) {
+                logger.error("Cannot list corpus files in provided directory: {}",e.getLocalizedMessage());
             }
         } else {
-            logger.error("Path must point to an existing directory.");
+            logger.error("The specified directory does not exist!");
         }
         return this;
     }

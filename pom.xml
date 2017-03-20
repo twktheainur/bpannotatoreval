@@ -130,9 +130,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>lib.sparqy</groupId>
-            <artifactId>sparqy-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>org.sifrproject</groupId>
+            <artifactId>sifr-bioportal-annotation-model</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sifrproject</groupId>
+            <artifactId>sifr-bioportal-annotator-client</artifactId>
+            <version>0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -144,7 +149,6 @@
             <artifactId>uimafit-maven-plugin</artifactId>
             <version>2.1.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.uima</groupId>
             <artifactId>uimaj-core</artifactId>
