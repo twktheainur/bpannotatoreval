@@ -27,16 +27,16 @@ public final class AnnotatorBaseline {
         //Loading type groups
 
 
-        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.stageportal.lirmm.fr/annotator/", "22522d5c-c4fe-45fc-afc6-d43e2e613169");
+        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8082", "907d47d9-3a00-4aa7-9111-090112dfab6a");
 
-        final String[] ontologies = {};
+        final String[] ontologies = {"MSHFRE", "MDRFRE", "MTHMSTFRE", "MEDLINEPLUS", "CIM-10"};
         final String[] semanticGroups = {};
         final TaskAnnotator taskAnnotator = new DirectQuaeroAnnotator(
                 annotator,
                 UMLSSemanticGroupsLoader.load(),
                 ontologies,
                 semanticGroups,
-                "quaeroimg",
+                "quaerosg",
                 true);
 
         for (final Map.Entry<String, String> textEntry : quaeroCorpus) {
