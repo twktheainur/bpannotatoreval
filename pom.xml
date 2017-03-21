@@ -150,21 +150,6 @@
             <version>1.4.01</version>
         </dependency>
         <dependency>
-            <groupId>org.getalp</groupId>
-            <artifactId>org.getalp.lexsema-similarity-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.getalp</groupId>
-            <artifactId>org.getalp.lexsema-similarity-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.getalp</groupId>
-            <artifactId>org.getalp.lexsema-io-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.7</version>
