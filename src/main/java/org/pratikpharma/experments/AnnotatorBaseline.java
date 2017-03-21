@@ -24,20 +24,28 @@ public final class AnnotatorBaseline {
 
         @SuppressWarnings("HardcodedFileSeparator") final Iterable<Map.Entry<String, String>> quaeroCorpus = new QuaeroRawReader(args[0]).load();
 
+        final String format = args[2];
+        final boolean expandMappings=Boolean.valueOf(args[3]);
+
         //Loading type groups
 
 
-        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8080/annotator/", "907d47d9-3a00-4aa7-9111-090112dfab6a");
+        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8080/annotator", "907d47d9-3a00-4aa7-9111-090112dfab6a");
 
-        final String[] ontologies = {"MSHFRE"};
+        String[] ontologies = new String[args.length - 4];
+
+        for(int i=4;i< args.length;i++){
+            ontologies[i-4] = args[i];
+        }
+
         final String[] semanticGroups = {"ANAT", "CHEM", "DEVI", "DISO", "GEOG", "LIVB", "OBJC", "PHEN", "PHYS", "PROC"};
         final TaskAnnotator taskAnnotator = new DirectQuaeroAnnotator(
                 annotator,
                 UMLSSemanticGroupsLoader.load(),
                 ontologies,
                 semanticGroups,
-                "quaero",
-                false);
+                format,
+                expandMappings);
 
         for (final Map.Entry<String, String> textEntry : quaeroCorpus) {
             //noinspection HardcodedFileSeparator
