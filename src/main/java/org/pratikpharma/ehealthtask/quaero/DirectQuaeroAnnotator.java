@@ -1,4 +1,4 @@
-package org.pratikpharma.ehealthtask;
+package org.pratikpharma.ehealthtask.quaero;
 
 
 import org.json.simple.parser.ParseException;
@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DirectQuaeroAnnotator implements TaskAnnotator {
+public class DirectQuaeroAnnotator implements QaeroAnnotator {
     private static final Logger logger = LoggerFactory.getLogger(DirectQuaeroAnnotator.class);
     @SuppressWarnings("HardcodedLineSeparator")
     private static final Pattern SPECIAL_CHARS = Pattern.compile("[\t\n\r]");
@@ -46,11 +46,11 @@ public class DirectQuaeroAnnotator implements TaskAnnotator {
     }
 
     @Override
-    public void annotateText(final String text, final String textId, final Path resultsDirectory) throws IOException, NCBOAnnotatorErrorException, ParseException {
-        if (!Files.exists(resultsDirectory)) {
-            Files.createDirectory(resultsDirectory);
+    public void annotateText(final String text, final String textId, final Path resultPath) throws IOException, NCBOAnnotatorErrorException, ParseException {
+        if (!Files.exists(resultPath)) {
+            Files.createDirectory(resultPath);
         }
-        final Path outputFile = Paths.get(resultsDirectory.toString(), textId + ".ann");
+        final Path outputFile = Paths.get(resultPath.toString(), textId + ".ann");
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(outputFile))) {
 
 
