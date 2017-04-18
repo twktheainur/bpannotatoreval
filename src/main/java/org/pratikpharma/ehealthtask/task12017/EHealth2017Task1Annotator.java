@@ -6,9 +6,11 @@ import org.pratikpharma.io.ehealt2017.corpus.Document;
 import org.pratikpharma.io.ehealt2017.corpus.DocumentLine;
 import org.pratikpharma.io.ehealt2017.corpus.ICD10Annotation;
 import org.pratikpharma.io.ehealt2017.corpus.ICD10AnnotationImpl;
+import org.pratikpharma.util.EmptyResultsCache;
 import org.sifrproject.annotations.api.input.AnnotationParser;
 import org.sifrproject.annotations.api.model.AnnotatedClass;
 import org.sifrproject.annotations.api.model.Annotation;
+import org.sifrproject.annotations.exceptions.InvalidFormatException;
 import org.sifrproject.annotations.exceptions.NCBOAnnotatorErrorException;
 import org.sifrproject.annotations.input.BioPortalJSONAnnotationParser;
 import org.sifrproject.annotations.model.BioPortalLazyAnnotationFactory;
@@ -40,14 +42,17 @@ public class EHealth2017Task1Annotator {
 
     private final Jedis jedis;
 
-    public EHealth2017Task1Annotator(final BioPortalAnnotator annotator, final Jedis jedis) {
+    private final String cacheKeyPrefix;
+
+    public EHealth2017Task1Annotator(final BioPortalAnnotator annotator, final Jedis jedis, final String cacheKeyPrefix) {
         this.annotator = annotator;
         annotationParser = new BioPortalJSONAnnotationParser(new BioPortalLazyAnnotationFactory());
         this.jedis = jedis;
+        this.cacheKeyPrefix = cacheKeyPrefix;
     }
 
 
-    public void annotate(final Iterable<Document> corpus, final PrintWriter resultOutput) throws IOException, NCBOAnnotatorErrorException, ParseException {
+    public void annotate(final Iterable<Document> corpus, final PrintWriter resultOutput, final String... ontologies) throws IOException, NCBOAnnotatorErrorException, ParseException, InvalidFormatException {
 
         int totalLineCount = 0;
         for (final Document document : corpus) {
@@ -65,15 +70,15 @@ public class EHealth2017Task1Annotator {
                 if (text.trim().isEmpty()) {
                     resultOutput.println(resultLine(document, documentLine, null));
                 } else {
-                    final String annotationKey = String.format("%d_%d", document.getId(), documentLine.getLineId());
+                    final String annotationKey = String.format("%s_%d_%d", cacheKeyPrefix,document.getId(), documentLine.getLineId());
 
                     final List<String> cachedAnnotations = jedis.lrange(annotationKey, 0, -1);
 
-                    if (cachedAnnotations.isEmpty()) {
+                    if (cachedAnnotations.isEmpty() && !EmptyResultsCache.isEmpty(annotationKey,jedis)) {
 
                         final Matcher matcher = SPECIAL_CHARS.matcher(text);
                         final BioportalAnnotatorQueryBuilder queryBuilder = BioportalAnnotatorQueryBuilder.DEFAULT
-                                .text(matcher.replaceAll(" ")).lemmatize(false).ontologies("CIM-10", "CIM-10DC")
+                                .text(matcher.replaceAll(" ")).lemmatize(false).ontologies(ontologies)
                                 .longest_only(true);
 
                         final BioPortalAnnotatorQuery query = queryBuilder.build();
@@ -90,9 +95,10 @@ public class EHealth2017Task1Annotator {
                                 resultOutput.println(resultLine(document, documentLine, annotation));
                             }
                         } else {
+                            EmptyResultsCache.markEmpty(annotationKey,jedis);
                             resultOutput.println(resultLine(document, documentLine, null));
                         }
-                    } else {
+                    } else if (!cachedAnnotations.isEmpty()){
                         for (final String annotationString : cachedAnnotations) {
                             final String[] fields = FIELD_SEPARATOR_PATTERN.split(annotationString);
                             final String code = fields[0];
@@ -109,6 +115,8 @@ public class EHealth2017Task1Annotator {
 
                             resultOutput.println(resultLine(document, documentLine, annotation));
                         }
+                    } else {
+                        resultOutput.println(resultLine(document, documentLine, null));
                     }
                 }
             }
