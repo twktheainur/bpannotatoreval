@@ -1,6 +1,9 @@
 package org.pratikpharma.ehealthtask.task12017;
 
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import org.json.simple.parser.ParseException;
 import org.pratikpharma.io.ehealt2017.corpus.Document;
 import org.pratikpharma.io.ehealt2017.corpus.DocumentLine;
@@ -20,12 +23,15 @@ import org.sifrproject.annotatorclient.api.BioPortalAnnotatorQuery;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sifrproject.annotatorclient.util.PairImpl;
 
 @SuppressWarnings("HardcodedLineSeparator")
 public class EHealth2017Task1Annotator {
@@ -35,7 +41,8 @@ public class EHealth2017Task1Annotator {
     private static final Pattern FIELD_SEPARATOR_PATTERN = Pattern.compile(CACHE_VALUE_SEPARATOR);
     private static final double PROGRESS_THRESHOLD = 0.01;
     private final BioPortalAnnotator annotator;
-
+    private List<String> alCode;
+    private List<Integer> alFreq;
     private static final Pattern SPECIAL_CHARS = Pattern.compile("[\t\n\r]");
 
     private final AnnotationParser annotationParser;
@@ -44,11 +51,20 @@ public class EHealth2017Task1Annotator {
 
     private final String cacheKeyPrefix;
 
-    public EHealth2017Task1Annotator(final BioPortalAnnotator annotator, final Jedis jedis, final String cacheKeyPrefix) {
+    public EHealth2017Task1Annotator(final BioPortalAnnotator annotator, final Jedis jedis, final String cacheKeyPrefix) throws FileNotFoundException, IOException {
         this.annotator = annotator;
         annotationParser = new BioPortalJSONAnnotationParser(new BioPortalLazyAnnotationFactory());
         this.jedis = jedis;
         this.cacheKeyPrefix = cacheKeyPrefix;
+        // charger les fréquences des codes
+        alCode = new ArrayList<String>();
+        alFreq = new ArrayList<Integer>();
+        BufferedReader r = new BufferedReader(new InputStreamReader(new FileInputStream("codefreq_train.csv")));
+        String line;
+        while ((line=r.readLine())!=null){
+            alCode.add(line.split(";")[1]);
+            alFreq.add(Integer.parseInt(line.split(";")[0]));
+        }
     }
 
 
@@ -90,10 +106,18 @@ public class EHealth2017Task1Annotator {
                         annotations.forEach(new AnnotationConsumer(documentLine));
 
                         if (documentLine.hasAnnotation()) {
+                            int index=0;
+                            int maxFreq=0;
+                            ICD10Annotation maxAnnotation=null;
                             for (final ICD10Annotation annotation : documentLine) {
-                                jedis.lpush(annotationKey, annotation.getIcd10Code() + CACHE_VALUE_SEPARATOR + annotation.getStandardText() + CACHE_VALUE_SEPARATOR + annotation.getCauseRankFirst() + CACHE_VALUE_SEPARATOR + annotation.getCauseRankSecond());
-                                resultOutput.println(resultLine(document, documentLine, annotation));
+                                if (alFreq.get(alCode.indexOf(annotation.getIcd10Code())) > maxFreq){
+                                    maxFreq=alFreq.get(alCode.indexOf(annotation.getIcd10Code()));
+                                    maxAnnotation = annotation;
+                                }
                             }
+                            jedis.lpush(annotationKey, maxAnnotation.getIcd10Code() + CACHE_VALUE_SEPARATOR + maxAnnotation.getStandardText() + CACHE_VALUE_SEPARATOR + maxAnnotation.getCauseRankFirst() + CACHE_VALUE_SEPARATOR + maxAnnotation.getCauseRankSecond());
+                            resultOutput.println(resultLine(document, documentLine, maxAnnotation));
+                                                     
                         } else {
                             EmptyResultsCache.markEmpty(annotationKey, jedis);
                             resultOutput.println(resultLine(document, documentLine, null));
@@ -130,6 +154,11 @@ public class EHealth2017Task1Annotator {
             }
         }
     }
+    
+    private DocumentLine selectAnnotation(DocumentLine document){
+        
+        return document;
+    }
 
     @SuppressWarnings({"LawOfDemeter", "FeatureEnvy"})
     private String resultLine(final Document document, final DocumentLine documentLine, final ICD10Annotation icd10Annotation) {
@@ -164,6 +193,24 @@ public class EHealth2017Task1Annotator {
 
         return stringBuilder.toString();
 
+    }
+    
+    private class Couple{
+        private String code;
+        private int freq;
+        
+        public Couple(String c, int f){
+            code=c;
+            freq=f;
+        }
+        
+        public String getCode(){
+            return code;
+        }
+        
+        public int getFreq(){
+            return freq;
+        }
     }
 
     private static class AnnotationConsumer implements Consumer<Annotation> {
