@@ -33,7 +33,7 @@ public class EHealth2017Task1Annotator {
     private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
     private static final String CACHE_VALUE_SEPARATOR = "_____";
     private static final Pattern FIELD_SEPARATOR_PATTERN = Pattern.compile(CACHE_VALUE_SEPARATOR);
-    public static final double PROGRESS_THRESHOLD = 0.01;
+    private static final double PROGRESS_THRESHOLD = 0.01;
     private final BioPortalAnnotator annotator;
 
     private static final Pattern SPECIAL_CHARS = Pattern.compile("[\t\n\r]");
@@ -70,11 +70,11 @@ public class EHealth2017Task1Annotator {
                 if (text.trim().isEmpty()) {
                     resultOutput.println(resultLine(document, documentLine, null));
                 } else {
-                    final String annotationKey = String.format("%s_%d_%d", cacheKeyPrefix,document.getId(), documentLine.getLineId());
+                    final String annotationKey = String.format("%s_%d_%d", cacheKeyPrefix, document.getId(), documentLine.getLineId());
 
                     final List<String> cachedAnnotations = jedis.lrange(annotationKey, 0, -1);
 
-                    if (cachedAnnotations.isEmpty() && !EmptyResultsCache.isEmpty(annotationKey,jedis)) {
+                    if (cachedAnnotations.isEmpty() && !EmptyResultsCache.isEmpty(annotationKey, jedis)) {
 
                         final Matcher matcher = SPECIAL_CHARS.matcher(text);
                         final BioportalAnnotatorQueryBuilder queryBuilder = BioportalAnnotatorQueryBuilder.DEFAULT
@@ -95,10 +95,10 @@ public class EHealth2017Task1Annotator {
                                 resultOutput.println(resultLine(document, documentLine, annotation));
                             }
                         } else {
-                            EmptyResultsCache.markEmpty(annotationKey,jedis);
+                            EmptyResultsCache.markEmpty(annotationKey, jedis);
                             resultOutput.println(resultLine(document, documentLine, null));
                         }
-                    } else if (!cachedAnnotations.isEmpty()){
+                    } else if (!cachedAnnotations.isEmpty()) {
                         for (final String annotationString : cachedAnnotations) {
                             final String[] fields = FIELD_SEPARATOR_PATTERN.split(annotationString);
                             final String code = fields[0];
@@ -107,7 +107,7 @@ public class EHealth2017Task1Annotator {
                             if (fields.length > 2) {
                                 final String causeRankFirst = fields[2];
                                 final String causeRankSecond = fields[3];
-                                if(!causeRankFirst.equals("null") && !causeRankSecond.equals("null")) {
+                                if (!causeRankFirst.equals("null") && !causeRankSecond.equals("null")) {
                                     annotation.setCauseRankFirst(Integer.valueOf(causeRankFirst));
                                     annotation.setCauseRankSecond(Integer.valueOf(causeRankSecond));
                                 }
