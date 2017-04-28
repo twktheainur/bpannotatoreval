@@ -1,4 +1,4 @@
-package org.pratikpharma.io.ehealt2017.corpus;
+package org.pratikpharma.io.ehealth2017.corpus;
 
 
 public interface ICD10Annotation extends Comparable<ICD10Annotation> {
@@ -15,4 +15,6 @@ public interface ICD10Annotation extends Comparable<ICD10Annotation> {
     void setCauseRankFirst(Integer causeRank);
 
     void setCauseRankSecond(Integer causeRankSecond);
+
+    String getCacheString();
 }

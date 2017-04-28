@@ -1,7 +1,7 @@
-package org.pratikpharma.io.ehealt2017.corpus;
+package org.pratikpharma.io.ehealth2017.corpus;
 
-import org.pratikpharma.io.ehealt2017.corpus.enumerations.DocumentGender;
-import org.pratikpharma.io.ehealt2017.corpus.enumerations.DocumentLocationOfDeath;
+import org.pratikpharma.io.ehealth2017.corpus.enumerations.DocumentGender;
+import org.pratikpharma.io.ehealth2017.corpus.enumerations.DocumentLocationOfDeath;
 
 
 public interface Document extends Iterable<DocumentLine> {

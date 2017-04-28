@@ -1,4 +1,4 @@
-package org.pratikpharma.io.ehealt2017.corpus.enumerations;
+package org.pratikpharma.io.ehealth2017.corpus.enumerations;
 
 public enum LineIntervalType implements CodedEnumeration {
     MINUTES(1, "Minutes"), HOURS(2, "Hours"), DAYS(3, "Days"),

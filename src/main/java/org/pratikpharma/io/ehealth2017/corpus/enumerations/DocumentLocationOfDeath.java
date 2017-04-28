@@ -1,4 +1,4 @@
-package org.pratikpharma.io.ehealt2017.corpus.enumerations;
+package org.pratikpharma.io.ehealth2017.corpus.enumerations;
 
 public enum DocumentLocationOfDeath implements CodedEnumeration {
     HOME(1, "Home"), HOSPITAL(2, "Hospital"), PRIVATE_CLINIC(3, "Private Clinic"),

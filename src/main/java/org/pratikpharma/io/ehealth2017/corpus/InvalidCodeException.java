@@ -1,4 +1,4 @@
-package org.pratikpharma.io.ehealt2017.corpus;
+package org.pratikpharma.io.ehealth2017.corpus;
 
 
 @SuppressWarnings("SerializableHasSerializationMethods")

@@ -1,9 +1,9 @@
-package org.pratikpharma.io.ehealt2017.corpus;
+package org.pratikpharma.io.ehealth2017.corpus;
 
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.pratikpharma.io.ehealt2017.corpus.enumerations.LineIntervalType;
+import org.pratikpharma.io.ehealth2017.corpus.enumerations.LineIntervalType;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -109,5 +109,10 @@ public class DocumentLineImpl implements DocumentLine {
         hashCodeBuilder.append(getLineId());
         hashCodeBuilder.append(getDocument());
         return hashCodeBuilder.toHashCode();
+    }
+
+    @Override
+    public Set<ICD10Annotation> getAnnotations() {
+        return Collections.unmodifiableSet(annotations);
     }
 }
