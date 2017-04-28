@@ -3,8 +3,9 @@ package org.pratikpharma.experments;
 
 import org.json.simple.parser.ParseException;
 import org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator;
-import org.pratikpharma.io.ehealt2017.EHealth2017Task1Reader;
-import org.pratikpharma.io.ehealt2017.corpus.Document;
+import org.pratikpharma.ehealthtask.task12017.MFCTypes;
+import org.pratikpharma.io.ehealth2017.EHealth2017Task1Reader;
+import org.pratikpharma.io.ehealth2017.corpus.Document;
 import org.sifrproject.annotations.exceptions.InvalidFormatException;
 import org.sifrproject.annotations.exceptions.NCBOAnnotatorErrorException;
 import org.sifrproject.annotatorclient.BioportalAnnotatorFactory;
@@ -40,16 +41,28 @@ public final class CLEFEHealth2017Task1 {
 
         final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator(args[3], args[4]);
 
+        final MFCTypes type = findType(args[5]);
 
-        final String[] remainingArgs = Arrays.copyOfRange(args,5, args.length);
+
+        final String[] remainingArgs = Arrays.copyOfRange(args,6, args.length);
 
         try (Jedis jedis = new Jedis("localhost")) {
-            final EHealth2017Task1Annotator eHealth2017Task1Annotator = new EHealth2017Task1Annotator(annotator, jedis,cachePrefix);
+            final EHealth2017Task1Annotator eHealth2017Task1Annotator = new EHealth2017Task1Annotator(annotator, jedis,cachePrefix, type);
 
             logger.info("Starting annotation with BP proxy...");
             eHealth2017Task1Annotator.annotate(corpus,printWriter, remainingArgs);
         }
 
         //logger.info(processedText.toString());
+    }
+
+    private static MFCTypes findType(final String name){
+        MFCTypes returnedType = MFCTypes.NONE;
+        for(final MFCTypes type: MFCTypes.values()){
+            if(name.equals(type.name())){
+                returnedType = type;
+            }
+        }
+        return returnedType;
     }
 }
