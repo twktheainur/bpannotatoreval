@@ -1,4 +1,4 @@
-src/main/java/org/pratikpharma/io/ehealth2017/disambiguation/ontology/CUIRetriever.javapackage org.pratikpharma.io.ehealth2017.disambiguation.ontology;
+package org.pratikpharma.io.ehealth2017.disambiguation.ontology;
 
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.QuerySolution;
