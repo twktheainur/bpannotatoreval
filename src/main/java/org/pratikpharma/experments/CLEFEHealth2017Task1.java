@@ -4,7 +4,7 @@ package org.pratikpharma.experments;
 import org.json.simple.parser.ParseException;
 import org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator;
 import org.pratikpharma.ehealthtask.task12017.MFCTypes;
-import org.pratikpharma.io.ehealth2017.EHealth2017Task1Reader;
+import org.pratikpharma.io.ehealth2017.EHealth2017Task1AlignedReader;
 import org.pratikpharma.io.ehealth2017.corpus.Document;
 import org.sifrproject.annotations.exceptions.InvalidFormatException;
 import org.sifrproject.annotations.exceptions.NCBOAnnotatorErrorException;
@@ -28,7 +28,7 @@ public final class CLEFEHealth2017Task1 {
 
 
         logger.info("Loading corpus...");
-        final Iterable<Document> corpus = new EHealth2017Task1Reader(args[0]).load();
+        final Iterable<Document> corpus = new EHealth2017Task1AlignedReader(args[0]).load();
 
         final PrintWriter printWriter = new PrintWriter(args[1]);
 

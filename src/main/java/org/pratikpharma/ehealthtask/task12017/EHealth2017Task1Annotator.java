@@ -34,7 +34,7 @@ public class EHealth2017Task1Annotator {
 
     private static final Pattern DOT_PATTERN = Pattern.compile("\\.");
     private static final double PROGRESS_THRESHOLD = 0.01;
-    private static final double FREQ_CUTOFF_THRESHOLD = 0.65d;
+    private static final double FREQ_CUTOFF_THRESHOLD = 0.750d;
     private final BioPortalAnnotator annotator;
     private final List<String> alCode;
     private final List<Integer> alFreq;
@@ -70,7 +70,6 @@ public class EHealth2017Task1Annotator {
         }
     }
 
-
     @SuppressWarnings({"LocalVariableOfConcreteClass", "PublicMethodNotExposedInInterface"})
     public void annotate(final Iterable<Document> corpus, final PrintWriter resultOutput, final String... ontologies) throws IOException, NCBOAnnotatorErrorException, ParseException, InvalidFormatException {
 
@@ -87,7 +86,6 @@ public class EHealth2017Task1Annotator {
             for (final DocumentLine documentLine : document) {
                 final String text = documentLine.getRawText();
                 if (!text.trim().isEmpty()) {
-
                     //Generating cache key for the annotations
                     final String annotationKey = generateLineCacheKey(document, documentLine);
 
@@ -101,18 +99,16 @@ public class EHealth2017Task1Annotator {
                         annotations.forEach(new AnnotationConsumer(documentLine));
 
                         if (documentLine.hasAnnotation()) {
-                            processNewAnnotations(resultOutput, document, documentLine, annotationKey);
+                            for (final ICD10Annotation annotation : documentLine) {
+                                cacheAnnotation(annotationKey, annotation);
+                            }
                         } else {
                             EmptyResultsCache.markEmpty(annotationKey, jedis);
-                            resultOutput.println(resultLine(document, documentLine, null));
                         }
 
                         //We founnd annotations in the cache, we can now parse and load them
                     } else if (!cachedAnnotations.isEmpty()) {
-                        processCachedAnnotations(resultOutput, document, documentLine, cachedAnnotations);
-                    } else {
-                        //We write an empty annotation for this line as there are no codes found
-                        resultOutput.println(resultLine(document, documentLine, null));
+                        loadCachedAnnotations(documentLine, cachedAnnotations);
                     }
                 }
             }
@@ -125,6 +121,18 @@ public class EHealth2017Task1Annotator {
                 previousProgress = progress;
             }
         }
+
+        for (final Document document : corpus) {
+            for (final DocumentLine documentLine : document) {
+                if (documentLine.hasAnnotation()) {
+                    final String annotationKey = generateLineCacheKey(document, documentLine);
+                    processNewAnnotations(resultOutput, document, documentLine, annotationKey);
+                } else {
+                    resultOutput.println(resultLine(document, documentLine, null));
+                }
+            }
+        }
+
     }
 
     private String generateLineCacheKey(final Document document, final DocumentLine documentLine) {
@@ -135,10 +143,11 @@ public class EHealth2017Task1Annotator {
         jedis.lpush(annotationKey, annotation.getCacheString());
     }
 
-    private void processCachedAnnotations(final PrintWriter printWriter, final Document document, final DocumentLine documentLine, final Iterable<String> cachedAnnotations) {
+    private void loadCachedAnnotations(final DocumentLine documentLine, final Iterable<String> cachedAnnotations) {
         for (final String annotationString : cachedAnnotations) {
             final ICD10Annotation annotation = new ICD10AnnotationImpl(annotationString);
-            printWriter.println(resultLine(document, documentLine, annotation));
+            documentLine.addAnnotation(annotation);
+            //printWriter.println(resultLine(document, documentLine, annotation));
         }
     }
 
@@ -157,6 +166,11 @@ public class EHealth2017Task1Annotator {
     @SuppressWarnings("LocalVariableOfConcreteClass")
     private void processNewAnnotations(final PrintWriter printWriter, final Document document, final DocumentLine documentLine, final String annotationKey) {
         final List<CodeFreqPair> codeByFreq = new ArrayList<>();
+        final double sum = computeFrequencies(documentLine, codeByFreq);
+        //Normalizing code frequency distribution for current annotations
+        for (final CodeFreqPair codeFreqPair : codeByFreq) {
+            codeFreqPair.setFreq(codeFreqPair.getFreq() / sum);
+        }
 
         if (codeByFreq.isEmpty() || (mfc == MFCTypes.NONE)) {
             for (final ICD10Annotation annotation : documentLine) {
@@ -164,18 +178,13 @@ public class EHealth2017Task1Annotator {
                 printWriter.println(resultLine(document, documentLine, annotation));
             }
         } else if (!codeByFreq.isEmpty()) {
-            handleMfcHeuristic(printWriter, document, documentLine, codeByFreq, annotationKey);
+            handleMfcHeuristic(printWriter, document, documentLine, codeByFreq);
         }
     }
 
     @SuppressWarnings("LocalVariableOfConcreteClass")
-    private void handleMfcHeuristic(final PrintWriter printWriter, final Document document, final DocumentLine documentLine, final List<CodeFreqPair> codeByFreq, final String annotationKey) {
+    private void handleMfcHeuristic(final PrintWriter printWriter, final Document document, final DocumentLine documentLine, final List<CodeFreqPair> codeByFreq) {
 
-        final double sum = computeFrequencies(documentLine,codeByFreq);
-
-        for (final CodeFreqPair codeFreqPair : codeByFreq) {
-            codeFreqPair.setFreq(codeFreqPair.getFreq() / sum);
-        }
         codeByFreq.sort((o1, o2) -> Double.compare(o2.getFreq(), o1.getFreq()));
         final Iterator<CodeFreqPair> iterator = codeByFreq.iterator();
         if (mfc == MFCTypes.CUTOFF) {
@@ -184,17 +193,15 @@ public class EHealth2017Task1Annotator {
                 final CodeFreqPair pair = iterator.next();
                 cumulativeFreq += pair.getFreq();
                 final ICD10Annotation annotation = pair.getAnnotation();
-                cacheAnnotation(annotationKey, annotation);
                 printWriter.println(resultLine(document, documentLine, annotation));
             }
         } else if (mfc == MFCTypes.FIRST) {
             final ICD10Annotation annotation = iterator.next().getAnnotation();
-            cacheAnnotation(annotationKey, annotation);
             printWriter.println(resultLine(document, documentLine, annotation));
         }
     }
 
-    private double computeFrequencies(final Iterable<ICD10Annotation> documentLine, final Collection<CodeFreqPair> frequencies){
+    private double computeFrequencies(final Iterable<ICD10Annotation> documentLine, final Collection<CodeFreqPair> frequencies) {
         double sum = 0d;
         for (final ICD10Annotation annotation : documentLine) {
             final int index = alCode.indexOf(annotation.getIcd10Code());

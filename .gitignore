@@ -1,5 +1,4 @@
-*.class
-
+1212702630437807181
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -26,3 +25,4 @@ resultsTest/
 .idea
 .setting
 *.csv
+/src/main/resources/ehealth2017/MRDEF.RRF
