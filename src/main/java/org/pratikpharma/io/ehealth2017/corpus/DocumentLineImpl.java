@@ -4,6 +4,8 @@ package org.pratikpharma.io.ehealth2017.corpus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.pratikpharma.io.ehealth2017.corpus.enumerations.LineIntervalType;
+import org.pratikpharma.util.EmptyResultsCache;
+import redis.clients.jedis.Jedis;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -86,6 +88,42 @@ public class DocumentLineImpl implements DocumentLine {
         return !annotations.isEmpty();
     }
 
+    @Override
+    public void cacheAnnotations(final Jedis jedis, final String cacheKeyPrefix) {
+        final String annotationKey = generateLineCacheKey(cacheKeyPrefix);
+        if (annotations.isEmpty()) {
+            EmptyResultsCache.markEmpty(annotationKey, jedis);
+        } else {
+            for (final ICD10Annotation annotation : annotations) {
+                annotation.cache(jedis, annotationKey);
+            }
+        }
+    }
+
+    @Override
+    public boolean fetchFromCache(final Jedis jedis, final String cacheKeyPrefix) {
+        final String annotationKey = generateLineCacheKey(cacheKeyPrefix);
+        final List<String> cachedAnnotations = jedis.lrange(annotationKey, 0, -1);
+        final boolean hasCachedAnnotations = !cachedAnnotations.isEmpty() && !isMarkedEmpty(jedis,cacheKeyPrefix);
+
+        for (final String annotationString : cachedAnnotations) {
+            final ICD10Annotation annotation = new ICD10AnnotationImpl(annotationString);
+            addAnnotation(annotation);
+        }
+
+        return hasCachedAnnotations;
+    }
+
+    @Override
+    public boolean isMarkedEmpty(final Jedis jedis, final String cacheKeyPrefix) {
+        final String annotationKey = generateLineCacheKey(cacheKeyPrefix);
+        return EmptyResultsCache.isEmpty(annotationKey, jedis);
+    }
+
+    private String generateLineCacheKey(final String cacheKeyPrefix) {
+        return String.format("%s_%s_%d", cacheKeyPrefix, document.getId(), getLineId());
+    }
+
     @SuppressWarnings({"LawOfDemeter", "MethodWithMultipleReturnPoints"})
     @Override
     public boolean equals(final Object o) {
@@ -109,10 +147,5 @@ public class DocumentLineImpl implements DocumentLine {
         hashCodeBuilder.append(getLineId());
         hashCodeBuilder.append(getDocument());
         return hashCodeBuilder.toHashCode();
-    }
-
-    @Override
-    public Set<ICD10Annotation> getAnnotations() {
-        return Collections.unmodifiableSet(annotations);
     }
 }

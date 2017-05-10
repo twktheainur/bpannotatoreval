@@ -36,7 +36,6 @@ public enum LineIntervalType implements CodedEnumeration {
 
     @Override
     public String toString() {
-        return name() +
-                "c=" + code;
+        return String.valueOf(code);
     }
 }

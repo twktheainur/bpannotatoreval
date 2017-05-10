@@ -1,7 +1,6 @@
-package org.pratikpharma.io.ehealth2017.disambiguation;
+package org.pratikpharma.disambiguation.ontology;
 
 public interface CUI {
     String getCode();
     String getDescription();
-    TUI getTUI();
 }

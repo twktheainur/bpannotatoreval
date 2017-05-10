@@ -1,13 +1,15 @@
-package org.pratikpharma.io.ehealth2017.disambiguation.ontology;
+package org.pratikpharma.disambiguation.ontology.queries;
 
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.core.Var;
 import org.sparqy.api.Graph;
+import org.sparqy.graph.DefaultGraph;
 import org.sparqy.queries.ARQSelectQueryImpl;
 import org.sparqy.queries.AbstractQueryProcessor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +17,13 @@ public class AltLabelRetriever extends AbstractQueryProcessor<String> {
 
     private static final String LABEL_VAR = "lv";
     private final String conceptURI;
+    private static final Graph graph = new DefaultGraph("", null);
 
 
-    public AltLabelRetriever(final Graph graph, final String conceptURI) {
+    public AltLabelRetriever(final String conceptURI) throws IOException {
         super(graph);
         this.conceptURI = conceptURI;
+        initialize();
     }
 
     @Override

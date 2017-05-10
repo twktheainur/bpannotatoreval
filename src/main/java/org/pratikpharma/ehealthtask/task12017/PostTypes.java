@@ -1,11 +1,11 @@
 package org.pratikpharma.ehealthtask.task12017;
 
-public enum MFCTypes {
-    NONE("None"),FIRST("First"), CUTOFF("Cutoff");
+public enum PostTypes {
+    NONE("None"),FIRST("First"), CUTOFF("Cutoff"), DISAMBIGUATE("Disambiguate");
 
     private final String name;
 
-    MFCTypes(final String name) {
+    PostTypes(final String name) {
         this.name = name;
     }
 

@@ -7,7 +7,7 @@ import org.pratikpharma.io.ehealth2017.corpus.enumerations.DocumentLocationOfDea
 public interface Document extends Iterable<DocumentLine> {
     void addLine(DocumentLine documentLine);
 
-    Integer getId();
+    String getId();
 
     Integer getYearCoded();
 
@@ -16,6 +16,8 @@ public interface Document extends Iterable<DocumentLine> {
     DocumentGender getGender();
 
     DocumentLocationOfDeath getLocationOfDeath();
+
+    String getDocumentText();
 
     int size();
 }

@@ -5,7 +5,7 @@
     <artifactId>bpannotatoreval</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>clinanno</name>
+    <name>bpannotatoreval</name>
     <url>http://maven.apache.org</url>
 
     <build>
@@ -58,7 +58,7 @@
                         </descriptorRefs>
                         <archive>
                             <manifest>
-                                <mainClass>org.pratikpharma.experments.AnnotatorBaseline</mainClass>
+                                <mainClass>org.pratikpharma.cli.QuaeroEvaluator</mainClass>
                             </manifest>
                         </archive>
                         <finalName>bpeval</finalName>
@@ -114,6 +114,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.wcohen</groupId>
+            <artifactId>com.wcohen.secondstring</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.0</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

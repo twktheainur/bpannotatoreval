@@ -1,10 +1,10 @@
-package org.pratikpharma.experments;
+package org.pratikpharma.cli;
 
 
 import org.json.simple.parser.ParseException;
 import org.pratikpharma.ehealthtask.quaero.DirectQuaeroAnnotator;
 import org.pratikpharma.ehealthtask.quaero.QaeroAnnotator;
-import org.pratikpharma.io.QuaeroRawReader;
+import org.pratikpharma.io.quaero.QuaeroReader;
 import org.sifrproject.annotations.exceptions.NCBOAnnotatorErrorException;
 import org.sifrproject.annotations.umls.UMLSSemanticGroupsLoader;
 import org.sifrproject.annotatorclient.BioportalAnnotatorFactory;
@@ -14,18 +14,18 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
 
-public final class AnnotatorBaseline {
+public final class QuaeroEvaluator {
     static final String PRODUCTION_KEY = "907d47d9-3a00-4aa7-9111-090112dfab6a";
     static final String STAGE_KEY = "22522d5c-c4fe-45fc-afc6-d43e2e613169";
 
-    private AnnotatorBaseline() {
+    private QuaeroEvaluator() {
     }
-    //private static Logger logger = LoggerFactory.getLogger(AnnotatorBaseline.class);
+    //private static Logger logger = LoggerFactory.getLogger(QuaeroEvaluator.class);
 
     public static void main(final String... args) throws IOException, NCBOAnnotatorErrorException, ParseException {
 
 
-        @SuppressWarnings("HardcodedFileSeparator") final Iterable<Map.Entry<String, String>> quaeroCorpus = new QuaeroRawReader(args[0]).load();
+        @SuppressWarnings("HardcodedFileSeparator") final Iterable<Map.Entry<String, String>> quaeroCorpus = new QuaeroReader(args[0]).load();
 
         final String format = args[2];
         final boolean expandMappings=Boolean.valueOf(args[3]);

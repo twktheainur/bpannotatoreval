@@ -26,3 +26,8 @@ resultsTest/
 .setting
 *.csv
 /src/main/resources/ehealth2017/MRDEF.RRF
+*.xlsx
+*.txt
+.DS_Store
+results/
+*.zip

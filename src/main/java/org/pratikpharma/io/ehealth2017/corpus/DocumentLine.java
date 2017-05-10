@@ -1,8 +1,7 @@
 package org.pratikpharma.io.ehealth2017.corpus;
 
 import org.pratikpharma.io.ehealth2017.corpus.enumerations.LineIntervalType;
-
-import java.util.Set;
+import redis.clients.jedis.Jedis;
 
 
 public interface DocumentLine extends Iterable<ICD10Annotation> {
@@ -24,5 +23,11 @@ public interface DocumentLine extends Iterable<ICD10Annotation> {
 
     boolean hasAnnotation();
 
-    Set<ICD10Annotation> getAnnotations();
+    void cacheAnnotations(final Jedis jedis, final String cacheKeyPrefix);
+    @SuppressWarnings("all")
+    boolean fetchFromCache(final Jedis jedis, final String cacheKeyPrefix);
+
+    boolean isMarkedEmpty(final Jedis jedis, final String cacheKeyPrefix);
+
+
 }

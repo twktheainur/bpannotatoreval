@@ -1,25 +1,29 @@
-package org.pratikpharma.io.ehealth2017.disambiguation.ontology;
+package org.pratikpharma.disambiguation.ontology.queries;
 
 import com.hp.hpl.jena.graph.NodeFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.sparql.core.Var;
 import org.sparqy.api.Graph;
+import org.sparqy.graph.DefaultGraph;
 import org.sparqy.queries.ARQSelectQueryImpl;
 import org.sparqy.queries.AbstractQueryProcessor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PrefLabelRetriever extends AbstractQueryProcessor<String> {
+public class CUIRetriever extends AbstractQueryProcessor<String> {
 
-    private static final String LABEL_VAR = "lv";
+    private static final String CUI_VAR = "cui";
     private final String conceptURI;
+    private static final Graph graph = new DefaultGraph("", null);
 
 
-    public PrefLabelRetriever(final Graph graph, final String conceptURI) {
+    public CUIRetriever(final String conceptURI) throws IOException {
         super(graph);
         this.conceptURI = conceptURI;
+        initialize();
     }
 
     @Override
@@ -27,10 +31,10 @@ public class PrefLabelRetriever extends AbstractQueryProcessor<String> {
         setQuery(new ARQSelectQueryImpl());
 
         addTriple(NodeFactory.createURI(conceptURI),
-                NodeFactory.createURI("http://www.w3.org/2004/02/skos/core#prefLabel"),
-                Var.alloc(LABEL_VAR));
+                NodeFactory.createURI("http://bioportal.bioontology.org/ontologies/umls/cui"),
+                Var.alloc(CUI_VAR));
 
-        addResultVar(LABEL_VAR);
+        addResultVar(CUI_VAR);
     }
 
     @Override
@@ -38,7 +42,7 @@ public class PrefLabelRetriever extends AbstractQueryProcessor<String> {
         final List<String> labels = new ArrayList<>();
         while (hasNextResult()) {
             final QuerySolution qs = nextSolution();
-            final RDFNode resultUri = qs.get(LABEL_VAR);
+            final RDFNode resultUri = qs.get(CUI_VAR);
             labels.add(resultUri.asLiteral().getString());
         }
         return labels;

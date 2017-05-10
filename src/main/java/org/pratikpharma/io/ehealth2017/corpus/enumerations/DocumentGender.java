@@ -2,7 +2,7 @@ package org.pratikpharma.io.ehealth2017.corpus.enumerations;
 
 
 public enum DocumentGender implements CodedEnumeration {
-    MALE(1, "Male subject"), FEMALE(2, "Female subject");
+    MALE(1, "Male subject"), FEMALE(2, "Female subject"), UNKNOWN(3, "Gender unknown or not available");
 
     private final int code;
     private final String description;
@@ -47,8 +47,7 @@ public enum DocumentGender implements CodedEnumeration {
 
     @Override
     public String toString() {
-        return name() +
-                "c=" + code;
+        return String.valueOf(code);
     }
 
 

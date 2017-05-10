@@ -10,7 +10,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class DocumentImpl implements Document {
-    private final Integer id;
+    private final String id;
     private final Integer yearCoded;
     private final Integer age;
 
@@ -19,7 +19,9 @@ public class DocumentImpl implements Document {
 
     private final Collection<DocumentLine> documentLines;
 
-    public DocumentImpl(final Integer id, final Integer yearCoded, final Integer age, final DocumentGender gender, final DocumentLocationOfDeath locationOfDeath) {
+    private String documentText = "";
+
+    public DocumentImpl(final String id, final Integer yearCoded, final Integer age, final DocumentGender gender, final DocumentLocationOfDeath locationOfDeath) {
         this.id = id;
         this.yearCoded = yearCoded;
         this.age = age;
@@ -32,11 +34,12 @@ public class DocumentImpl implements Document {
     @Override
     public void addLine(final DocumentLine documentLine){
         documentLines.add(documentLine);
+        documentText+=documentLine.getRawText()+ System.lineSeparator();
     }
 
 
     @Override
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
@@ -87,18 +90,23 @@ public class DocumentImpl implements Document {
 
         final Document theDocument = (Document) o;
 
-        final Integer id = getId();
+        final String id = getId();
         return id.equals(theDocument.getId());
     }
 
     @Override
     public int hashCode() {
-        final Integer id = getId();
+        final String id = getId();
         return id.hashCode();
     }
 
     @Override
     public int size(){
         return documentLines.size();
+    }
+
+    @Override
+    public String getDocumentText() {
+        return documentText;
     }
 }

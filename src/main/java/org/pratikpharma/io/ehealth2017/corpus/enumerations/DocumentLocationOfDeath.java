@@ -2,7 +2,8 @@ package org.pratikpharma.io.ehealth2017.corpus.enumerations;
 
 public enum DocumentLocationOfDeath implements CodedEnumeration {
     HOME(1, "Home"), HOSPITAL(2, "Hospital"), PRIVATE_CLINIC(3, "Private Clinic"),
-    HOSPICE(4, "Hospice, Retirement home"), PUBLIC_PLACE(5, "Public place"), OTHER_LOCATION(6,"Other location");
+    HOSPICE(4, "Hospice, Retirement home"), PUBLIC_PLACE(5, "Public place"), OTHER_LOCATION(6,"Other location"),
+    UNKNOWN(7, "Location of death unavailable or unknown");
     private final int code;
     private final String description;
 
@@ -35,7 +36,6 @@ public enum DocumentLocationOfDeath implements CodedEnumeration {
 
     @Override
     public String toString() {
-        return name() +
-                "c=" + code;
+        return String.valueOf(code);
     }
 }
