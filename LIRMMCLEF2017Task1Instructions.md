@@ -1,5 +1,7 @@
 # LIRMM: CLEF EHealth 2017 Task 1 Reproduction instructions
 
+
+
 [TOC]
 
 ## I. Introduction
@@ -272,7 +274,51 @@ For all the run below, if any network connection occurs or if the server goes do
   java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.ClefEHealth2017T1ResultFallbackRaw EN_raw_run1.csv EN_raw_run_all.csv EN_raw_run2.csv
   ```
 
-  ​
+### III.3. Computing result scores
+
+#### III.3.1. French aligned
+
+* Run 1:
+
+  ```Shell
+  $ perl ./eval/clefehealth2017Task1eval.pl corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run1.csv 
+  ```
+
+* Run 2:
+
+  ```Shell
+  $ perl ./eval/clefehealth2017Task1eval.pl corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run2.csv 
+  ```
+
+#### III.3.2. French raw
+
+- Run 1:
+
+  ```Shell
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run1.csv 
+  ```
+
+- Run 2:
+
+  ```shell
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run2.csv 
+  ```
+
+#### III.3.3. English raw
+
+- Run 1:
+
+  ```Shell
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run1.csv 
+  ```
+
+- Run 2:
+
+  ```shell
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run2.csv 
+  ```
+
+#### 
 
 ## Appendix 1. Annotator REST API connection information 
 
@@ -315,8 +361,6 @@ ICD10
 ICD10CM
 ICD10CDC
 ```
-
-
 
 ## Appendix 2. Building the evaluation programme from source 
 
