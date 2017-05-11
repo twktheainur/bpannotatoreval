@@ -1,5 +1,7 @@
 # LIRMM: CLEF EHealth 2017 Task 1 Reproduction instructions
 
+[TOC]
+
 ## I. Introduction
 
 The LIRMM system uses a dictionary based approach through the SIFR Bioportal Annotator (http://bioportal.lirmm.fr) for the French track and the NCBO Bioportal Annotator (http://bioportal.bioontology.org) for the English track, combined with fallback heuristics. 
@@ -320,7 +322,7 @@ ICD10CDC
 
 The project can be found on GitHub: https://github.com/twktheainur/bpannotatoreval
 
-### Requirements 
+### A2.1. Requirements 
 
 * You need to have installed Java 1.8 **JDK** 
 
@@ -328,7 +330,7 @@ The project can be found on GitHub: https://github.com/twktheainur/bpannotatorev
 
   https://maven.apache.org/install.html
 
-### Steps 
+### A2.2. Steps 
 
 1. Clone the repository (you need a github account to do so):
 
