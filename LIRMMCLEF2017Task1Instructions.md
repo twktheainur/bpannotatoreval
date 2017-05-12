@@ -22,7 +22,7 @@ The LIRMM system aims at evaluating the Bioportal Annotator concept recognition 
 
 **Reference:**
 
-Temporary French publication
+(Temporary French publication) Clement Jonquet, Amina Annane, Khedidja Bouarech, Vincent Emonet & Soumia Melzi. **SIFR BioPortal : Un portail ouvert et générique d’ontologies et de terminologies biomédicales françaises au service de l’annotation sémantique**, In *16th Journées Francophones d'Informatique Médicale, JFIM'16*. Genève, Suisse, July 2016. pp. 16.
 
 ### I.1. Team
 
@@ -116,7 +116,7 @@ The evaluation programme uses a Redis cache server to minimise redundent network
 
 * On **macOS**, you can use home-brew to install redis. 
 
-  1. First install home-brew if you do not have it already. Open a terminal and run:
+  1. First install home-brew if you don't already have it. Open a terminal and run:
 
      ```shell
      $ /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -165,7 +165,7 @@ We have prepared an archive with the test corpus and the jar to run the LIRMM sy
 
 1. Download the archive and decompress it 
 
-   http://link
+   http://andon.tchechmedjiev.eu/files/LIRMMSystemReproduction.zip
 
 2. Open a terminal and go in the decompressed directory. It should be named LIRMMSystemReproduction
 
@@ -189,10 +189,12 @@ The eval directory contains the aligned and raw scorers:
 The syntax of the evaluation programme is the following:
 
 ```shell
-java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator [aligned|raw] /path/to/corpus result.csv cachePrefix annotatorURL apikey [NONE|MFC|CUTOFF|DISAMBIGUATE] [0-1].[0-9]+ ONTOLOGY1 ONTOLOGY2 ... ONTOLOGYN
+java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator [aligned|raw] /path/to/corpus result.csv cachePrefix annotatorURL apikey [NONE|MFC|CUTOFF|DISAMBIGUATE] [0-1].[0-9]+ ONTOLOGY1 ONTOLOGY2 ... ONTOLOGYN
 ```
 
 For all the run below, if any network connection occurs or if the server goes down temporarily for some reason, you can simply run the same command again, the annotation will resume from the cache where it had been interrupted. 
+
+Depending on your internet connection speed and the load of the servers, the annotation may take up to several hours. In order to stream line the process, you may perform all the French and English runs at the same time in order to accelerate the whole process. Otherwise it may take longer than 8 hours to perform all the runs.
 
 #### III.2.1. French Aligned 
 
@@ -201,7 +203,7 @@ For all the run below, if any network connection occurs or if the server goes do
 * French Run 1 (aligned):
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator aligned corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run1.csv FR_aligned_run1 http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALLMFC CIM-10
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator aligned corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run1.csv FR_aligned_run1 http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALLMFC CIM-10
   ```
 
 * French Run 2 (aligned):
@@ -211,13 +213,13 @@ For all the run below, if any network connection occurs or if the server goes do
   1. Run the evaluation:
 
   ```Shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator aligned corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run_all.csv FR_aligned_run_all http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALL CIM-10
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator aligned corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run_all.csv FR_aligned_run_all http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALL CIM-10
   ```
 
   2. Merge with run 1 through the fallback strategy: 
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.ClefEHealth2017T1ResultFallbackAligned FR_aligned_run1.csv FR_aligned_run_all.csv FR_aligned_run2.csv
+  java -cp bpeval.jar org.pratikpharma.cli.ClefEHealth2017T1ResultFallbackAligned FR_aligned_run1.csv FR_aligned_run_all.csv FR_aligned_run2.csv
   ```
 
 #### III.2.2. French Raw
@@ -227,7 +229,7 @@ For all the run below, if any network connection occurs or if the server goes do
 - French Run 1 (raw):
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator raw corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run1.csv FR_aligned_run1 http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALLMFC CIM-10
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator raw corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run1.csv FR_aligned_run1 http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALLMFC CIM-10
   ```
 
   Please note that the cache key used is the same as for the aligned evaluation, whih is not an error. Given that there is no difference in the text itself and that our system only used the RawText field, only the number of fields in the output changes between the two tasks. Thus, by using the same cache key, we load all the same annotations from the cache and just write the result in the appropriate format, which takes mere seconds as opposed to more than an hour. 
@@ -239,13 +241,13 @@ For all the run below, if any network connection occurs or if the server goes do
   1. To run the evaluation:
 
   ```Shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator raw corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run_all.csv FR_aligned_run_all http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALL CIM-10
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator raw corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run_all.csv FR_aligned_run_all http://services.bioportal.lirmm.fr/annotator 39b6ff93-0c7c-478b-a2d7-1ad098f01a28 NONE 0.0 CIM-10DC-ALL CIM-10
   ```
 
   2. Merge with run 1 through the fallback strategy: 
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.ClefEHealth2017T1ResultFallbackRaw FR_raw_run1.csv FR_raw_run_all.csv FR_raw_run2.csv
+  java -cp bpeval.jar org.pratikpharma.cli.ClefEHealth2017T1ResultFallbackRaw FR_raw_run1.csv FR_raw_run_all.csv FR_raw_run2.csv
   ```
 
 #### III.2.3. English Raw
@@ -255,7 +257,7 @@ For all the run below, if any network connection occurs or if the server goes do
 - English Run 1 (raw):
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator raw corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run1.csv EN_raw_run1 http://services.bioportal.lirmm.fr/ncbo_annotatorplus 9c9d2054-33f0-4d1f-b545-87255257b56c NONE 0.0 ICD10DCD
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator raw corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run1.csv EN_raw_run1 http://services.bioportal.lirmm.fr/ncbo_annotatorplus 9c9d2054-33f0-4d1f-b545-87255257b56c NONE 0.0 ICD10DCD
   ```
 
 - English Run 2 (raw):
@@ -265,29 +267,31 @@ For all the run below, if any network connection occurs or if the server goes do
   1. To run the evaluation:
 
   ```Shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.EHealth2017Task1Annotator raw corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run_all.csv EN_raw_run_all http://services.bioportal.lirmm.fr/ncbo_annotatorplus 9c9d2054-33f0-4d1f-b545-87255257b56c NONE 0.0 ICD10CDC ICD10CM ICD10
+  java -cp bpeval.jar org.pratikpharma.cli.CLEFEHealth2017Task1Evaluator raw corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run_all.csv EN_raw_run_all http://services.bioportal.lirmm.fr/ncbo_annotatorplus 9c9d2054-33f0-4d1f-b545-87255257b56c NONE 0.0 ICD10CDC ICD10CM ICD10
   ```
 
   2. Merge with run 1 through the fallback strategy:
 
   ```shell
-  java -cp bpeval.jar org.pratikpharma.ehealthtask.task12017.ClefEHealth2017T1ResultFallbackRaw EN_raw_run1.csv EN_raw_run_all.csv EN_raw_run2.csv
+  java -cp bpeval.jar org.pratikpharma.cli.ClefEHealth2017T1ResultFallbackRaw EN_raw_run1.csv EN_raw_run_all.csv EN_raw_run2.csv
   ```
 
 ### III.3. Computing result scores
 
 #### III.3.1. French aligned
 
+The evaluation goldstandard for the test dataset has not been released as o fthe submissions for the replication task, as such it is not included in our archive. Please replace `/path/to/test/goldstandardcorpus.csv` with the appropriate task.
+
 * Run 1:
 
   ```Shell
-  $ perl ./eval/clefehealth2017Task1eval.pl corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run1.csv 
+  $ perl ./eval/clefehealth2017Task1eval.pl /path/to/test/goldstandardcorpus.csv FR_aligned_run1.csv 
   ```
 
 * Run 2:
 
   ```Shell
-  $ perl ./eval/clefehealth2017Task1eval.pl corpus/FR/aligned/AlignedCauses_2014test.csv FR_aligned_run2.csv 
+  $ perl ./eval/clefehealth2017Task1eval.pl /path/to/test/goldstandardcorpus.csv FR_aligned_run2.csv 
   ```
 
 #### III.3.2. French raw
@@ -295,13 +299,13 @@ For all the run below, if any network connection occurs or if the server goes do
 - Run 1:
 
   ```Shell
-  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run1.csv 
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl /path/to/test/goldstandardcorpus.csv FR_raw_run1.csv 
   ```
 
 - Run 2:
 
   ```shell
-  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/FR/raw/CausesBrutes_FR_test2014.csv FR_raw_run2.csv 
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl /path/to/test/goldstandardcorpus.csv FR_raw_run2.csv 
   ```
 
 #### III.3.3. English raw
@@ -309,13 +313,13 @@ For all the run below, if any network connection occurs or if the server goes do
 - Run 1:
 
   ```Shell
-  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run1.csv 
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl /path/to/test/goldstandardcorpus.csv EN_raw_run1.csv 
   ```
 
 - Run 2:
 
   ```shell
-  $ perl eval/clefehealthTask12017_plainCertifeval.pl corpus/EN/raw/CausesBrutes_EN_test.csv EN_raw_run2.csv 
+  $ perl eval/clefehealthTask12017_plainCertifeval.pl /path/to/test/goldstandardcorpus.csv EN_raw_run2.csv 
   ```
 
 #### 
@@ -352,7 +356,7 @@ Api-key for the English evaluation:
 
 Annotator URL for the English evaluation: 
 
-http://services/bioportal/ncbo_annotatorplus
+http://services.bioportal.lirmm.fr/ncbo_annotatorplus
 
 Ontology acronyms used in the evaluation:
 
