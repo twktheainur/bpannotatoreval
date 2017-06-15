@@ -72,8 +72,8 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
             final Matcher matcher = SPECIAL_CHARS.matcher(text);
 
             BioportalAnnotatorQueryBuilder queryBuilder =BioportalAnnotatorQueryBuilder.DEFAULT
-                    .text(matcher.replaceAll(" ")).expand_mappings(expandMappings)
-                    .format(format).semantic_groups(semanticGroups).lemmatize(false);
+                    .text(matcher.replaceAll(" ").replaceAll("\n"," ").trim()).expand_mappings(expandMappings)
+                    .format(format).semantic_groups(semanticGroups).lemmatize(false);//.recognizer("unitex");
 
             if((ontologies != null) && (ontologies.length > 0)){
                 queryBuilder = queryBuilder.ontologies(ontologies);

@@ -33,7 +33,7 @@ public final class QuaeroEvaluator {
         //Loading type groups
 
 
-        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8082/annotator/", PRODUCTION_KEY);
+        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.bioportal.lirmm.fr/annotator/", PRODUCTION_KEY);
 
         final String[] ontologies = new String[args.length - 4];
 

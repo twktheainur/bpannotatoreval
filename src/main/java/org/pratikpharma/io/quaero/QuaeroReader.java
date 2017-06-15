@@ -14,12 +14,12 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
+public class QuaeroReader implements Iterable<Map.Entry<String, String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(QuaeroReader.class);
 
     private final String pathString;
-    private final Map<String,String> texts;
+    private final Map<String, String> texts;
 
 
     public QuaeroReader(final String path) {
@@ -30,7 +30,7 @@ public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
     @SuppressWarnings({"MethodReturnOfConcreteClass", "PublicMethodNotExposedInInterface"})
     public QuaeroReader load() {
         final Path corpusDirectory = Paths.get(pathString);
-        if(Files.exists(corpusDirectory) && Files.isDirectory(corpusDirectory)){
+        if (Files.exists(corpusDirectory) && Files.isDirectory(corpusDirectory)) {
             try {
                 final Stream<Path> list = Files.list(corpusDirectory);
                 final Stream<Path> txt = list.filter(path -> {
@@ -40,7 +40,7 @@ public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
                 });
                 txt.forEach(new PathConsumer(texts));
             } catch (final IOException e) {
-                logger.error("Cannot list corpus files in provided directory: {}",e.getLocalizedMessage());
+                logger.error("Cannot list corpus files in provided directory: {}", e.getLocalizedMessage());
             }
         } else {
             logger.error("The specified directory does not exist!");
@@ -50,7 +50,7 @@ public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
     }
 
     private static class PathConsumer implements Consumer<Path> {
-        private final Map<String,String> texts;
+        private final Map<String, String> texts;
 
         @SuppressWarnings("AssignmentToCollectionOrArrayFieldFromParameter")
         PathConsumer(final Map<String, String> texts) {
@@ -65,6 +65,7 @@ public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
                 for (final String line : Files.readAllLines(file)) {
                     stringBuilder.append(line);
                     stringBuilder.append(System.lineSeparator());
+//                    stringBuilder.append(" ");
                 }
                 final String result = stringBuilder.toString();
                 final Path filePath = file.getFileName();
@@ -77,9 +78,8 @@ public class QuaeroReader implements Iterable<Map.Entry<String,String>> {
     }
 
 
-
     @Override
-    public Iterator<Map.Entry<String,String>> iterator() {
+    public Iterator<Map.Entry<String, String>> iterator() {
         final Set<Map.Entry<String, String>> entries = texts.entrySet();
         return entries.iterator();
     }
