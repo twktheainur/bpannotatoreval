@@ -30,31 +30,34 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
     private String[] semanticGroups;
     private final String format;
     private final boolean expandMappings;
+    private final Path resultPath;
 
     @SuppressWarnings("ConstructorWithTooManyParameters")
-    public DirectQuaeroAnnotator(final BioPortalAnnotator annotator, final UMLSGroupIndex groupIndex, final String[] ontologies, final String[] semanticGroups, final String format, final boolean expandMappings) {
+    public DirectQuaeroAnnotator(final BioPortalAnnotator annotator, final UMLSGroupIndex groupIndex, final String[] ontologies, final String[] semanticGroups, final String format, final boolean expandMappings, final Path resultPath) throws IOException {
         this.annotator = annotator;
         this.groupIndex = groupIndex;
-        if(ontologies!=null) {
+        if (ontologies != null) {
             this.ontologies = Arrays.copyOf(ontologies, ontologies.length);
         }
-        if(semanticGroups !=null) {
+        if (semanticGroups != null) {
             this.semanticGroups = Arrays.copyOf(semanticGroups, semanticGroups.length);
         }
         this.format = format;
         this.expandMappings = expandMappings;
-    }
-
-    @Override
-    public void annotateText(final String text, final String textId, final Path resultPath) throws IOException, NCBOAnnotatorErrorException, ParseException {
         if (!Files.exists(resultPath)) {
             Files.createDirectory(resultPath);
         }
+        this.resultPath = resultPath;
+    }
+
+    @Override
+    public void annotateText(final String text, final String textId) throws IOException, NCBOAnnotatorErrorException, ParseException {
         final Path outputFile = Paths.get(resultPath.toString(), textId + ".ann");
+        String output = "";
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(outputFile))) {
 
 
-            if((semanticGroups == null) || (semanticGroups.length == 0)) {
+            if ((semanticGroups == null) || (semanticGroups.length == 0)) {
                 int numberOfGroups = 0;
                 for (final String ignored : groupIndex) {
                     numberOfGroups++;
@@ -71,23 +74,39 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
 
             final Matcher matcher = SPECIAL_CHARS.matcher(text);
 
-            BioportalAnnotatorQueryBuilder queryBuilder =BioportalAnnotatorQueryBuilder.DEFAULT
-                    .text(matcher.replaceAll(" ").replaceAll("\n"," ").trim()).expand_mappings(expandMappings)
-                    .format(format).semantic_groups(semanticGroups).lemmatize(false);//.recognizer("unitex");
+            BioportalAnnotatorQueryBuilder queryBuilder = BioportalAnnotatorQueryBuilder.DEFAULT
+                    .text(matcher
+                            .replaceAll(" ")
+                            .trim())
+                    .expand_mappings(expandMappings)
+                    .format(format)
+                    .semantic_groups(semanticGroups)
+                    .lemmatize(false);
+                    //.unique_groups(true);//.recognizer("unitex");
 
-            if((ontologies != null) && (ontologies.length > 0)){
+            if ((ontologies != null) && (ontologies.length > 0)) {
                 queryBuilder = queryBuilder.ontologies(ontologies);
             }
 
+            //queryBuilder = queryBuilder.set
+
             final BioPortalAnnotatorQuery query = queryBuilder.build();
 
-            final String output = annotator.runQuery(query);
+            output = annotator.runQuery(query);
+
             printWriter.print(output);
             //logger.info(output);
             //writeBRAT(annitationParser.parseAnnotations(output), printWriter);
             //logger.info(annitationParser.annotations().toString());
             printWriter.flush();
             printWriter.close();
+        } catch (final IOException ioException){
+            logger.error(ioException.getLocalizedMessage());
+            Files.delete(outputFile);
+        }
+
+        if(output.contains("[{\"error\"")) {
+            Files.delete(outputFile);
         }
 
     }

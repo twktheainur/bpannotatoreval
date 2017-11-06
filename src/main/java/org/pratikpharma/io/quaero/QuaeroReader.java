@@ -1,5 +1,6 @@
 package org.pratikpharma.io.quaero;
 
+import org.pratikpharma.util.FiniteIterable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class QuaeroReader implements Iterable<Map.Entry<String, String>> {
+public class QuaeroReader implements FiniteIterable<Map.Entry<String, String>> {
 
     private static final Logger logger = LoggerFactory.getLogger(QuaeroReader.class);
 
@@ -29,9 +30,11 @@ public class QuaeroReader implements Iterable<Map.Entry<String, String>> {
 
     @SuppressWarnings({"MethodReturnOfConcreteClass", "PublicMethodNotExposedInInterface"})
     public QuaeroReader load() {
+
         final Path corpusDirectory = Paths.get(pathString);
         if (Files.exists(corpusDirectory) && Files.isDirectory(corpusDirectory)) {
             try {
+                logger.info("Loading corpus from {}", pathString);
                 final Stream<Path> list = Files.list(corpusDirectory);
                 final Stream<Path> txt = list.filter(path -> {
                     final Path fileName = path.getFileName();
@@ -43,10 +46,16 @@ public class QuaeroReader implements Iterable<Map.Entry<String, String>> {
                 logger.error("Cannot list corpus files in provided directory: {}", e.getLocalizedMessage());
             }
         } else {
-            logger.error("The specified directory does not exist!");
+            logger.info("The specified directory does not exist!");
         }
+        logger.info("Done.");
         return this;
 
+    }
+
+    @Override
+    public int size() {
+        return texts.size();
     }
 
     private static class PathConsumer implements Consumer<Path> {
@@ -59,7 +68,7 @@ public class QuaeroReader implements Iterable<Map.Entry<String, String>> {
 
         @Override
         public void accept(final Path file) {
-            logger.info(file.toString());
+            logger.debug("Loading {}", file);
             try {
                 final StringBuilder stringBuilder = new StringBuilder();
                 for (final String line : Files.readAllLines(file)) {

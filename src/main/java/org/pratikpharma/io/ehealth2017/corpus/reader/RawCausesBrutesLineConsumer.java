@@ -66,12 +66,14 @@ public class RawCausesBrutesLineConsumer implements Consumer<String> {
                     final String intValueString = csvRecord.get(5);
 
                     if (!intTypeString.equals("NULL") && !intValueString.equals("NULL") && !intTypeString.isEmpty() && !intValueString.isEmpty()) {
-                        documentLine.setIntervalType(
-                                LineIntervalType.getEnumValueFromCode(Integer.valueOf(intTypeString)));
-                        documentLine.setIntervalValue(Integer.valueOf(intValueString));
+                        if(fields.length <=6 ) {
+                            documentLine.setIntervalType(
+                                    LineIntervalType.getEnumValueFromCode(Integer.valueOf(intTypeString)));
+                            documentLine.setIntervalValue(Integer.valueOf(intValueString));
+                        }
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (final IOException ignored) {
             }
 
         }
