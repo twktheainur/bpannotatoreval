@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public final class QuaeroEvaluator {
     private static final Logger logger = LoggerFactory.getLogger(QuaeroEvaluator.class);
-    static final String PRODUCTION_KEY = "907d47d9-3a00-4aa7-9111-090112dfab6a";
+    private static final String PRODUCTION_KEY = "907d47d9-3a00-4aa7-9111-090112dfab6a";
     static final String STAGE_KEY = "22522d5c-c4fe-45fc-afc6-d43e2e613169";
-    static final double PERCENT_MAX = 100d;
+    private static final double PERCENT_MAX = 100d;
     private static final Pattern EXTENTION_SEPARATOR = Pattern.compile("[.]");
 
     private QuaeroEvaluator() {
@@ -46,8 +46,8 @@ public final class QuaeroEvaluator {
         //Loading type groups
 
 
-        //final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.bioportal.lirmm.fr/annotator/", PRODUCTION_KEY);
-        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8080/", PRODUCTION_KEY);
+        final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.bioportal.lirmm.fr/annotator/", PRODUCTION_KEY);
+        //final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8080/", PRODUCTION_KEY);
 
         final String[] ontologies = new String[args.length - 4];
 

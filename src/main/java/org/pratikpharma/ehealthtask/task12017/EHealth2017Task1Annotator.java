@@ -36,7 +36,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@SuppressWarnings("HardcodedLineSeparator")
+@SuppressWarnings("ALL")
 public class EHealth2017Task1Annotator {
 
 
