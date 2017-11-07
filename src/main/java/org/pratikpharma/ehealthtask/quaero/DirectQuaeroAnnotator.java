@@ -76,13 +76,12 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
 
             BioportalAnnotatorQueryBuilder queryBuilder = BioportalAnnotatorQueryBuilder.DEFAULT
                     .text(matcher
-                            .replaceAll(" ")
-                            .trim())
+                            .replaceAll(" "))
                     .expand_mappings(expandMappings)
                     .format(format)
                     .semantic_groups(semanticGroups)
-                    .lemmatize(false);
-                    //.unique_groups(true);//.recognizer("unitex");
+                    .lemmatize(false)
+                    .unique_groups(true);//.recognizer("unitex");
 
             if ((ontologies != null) && (ontologies.length > 0)) {
                 queryBuilder = queryBuilder.ontologies(ontologies);
@@ -100,12 +99,12 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
             //logger.info(annitationParser.annotations().toString());
             printWriter.flush();
             printWriter.close();
-        } catch (final IOException ioException){
+        } catch (final IOException ioException) {
             logger.error(ioException.getLocalizedMessage());
             Files.delete(outputFile);
         }
 
-        if(output.contains("[{\"error\"")) {
+        if (output.contains("[{\"error\"")) {
             Files.delete(outputFile);
         }
 
