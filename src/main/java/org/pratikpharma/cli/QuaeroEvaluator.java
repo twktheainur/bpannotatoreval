@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public final class QuaeroEvaluator {
     private static final Logger logger = LoggerFactory.getLogger(QuaeroEvaluator.class);
     private static final String PRODUCTION_KEY = "907d47d9-3a00-4aa7-9111-090112dfab6a";
-    static final String STAGE_KEY = "22522d5c-c4fe-45fc-afc6-d43e2e613169";
+    private static final String STAGE_KEY = "22522d5c-c4fe-45fc-afc6-d43e2e613169";
     private static final double PERCENT_MAX = 100d;
     private static final Pattern EXTENTION_SEPARATOR = Pattern.compile("[.]");
 
@@ -41,6 +41,7 @@ public final class QuaeroEvaluator {
 
         final String format = args[2];
         final boolean expandMappings = Boolean.valueOf(args[3]);
+        final boolean uniqueGroups = Boolean.valueOf(args[4]);
         final Path resultDirectory = Paths.get(args[1]);
 
         //Loading type groups
@@ -49,9 +50,9 @@ public final class QuaeroEvaluator {
         final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://services.bioportal.lirmm.fr/annotator/", PRODUCTION_KEY);
         //final BioPortalAnnotator annotator = BioportalAnnotatorFactory.createDefaultAnnotator("http://localhost:8080/", PRODUCTION_KEY);
 
-        final String[] ontologies = new String[args.length - 4];
+        final String[] ontologies = new String[args.length - 5];
 
-        System.arraycopy(args, 4, ontologies, 0, args.length - 4);
+        System.arraycopy(args, 5, ontologies, 0, args.length - 5);
 
         final String[] semanticGroups = {"CHEM", "DISO", "LIVB", "PROC", "ANAT", "PHYS", "OBJC", "GEOG", "DEVI", "PHEN"};
         final QaeroAnnotator qaeroAnnotator = new DirectQuaeroAnnotator(
@@ -59,7 +60,7 @@ public final class QuaeroEvaluator {
                 UMLSSemanticGroupsLoader.load(),
                 ontologies,
                 semanticGroups,
-                format,
+                format,uniqueGroups,
                 expandMappings, resultDirectory);
         final List<String> alreadyCompleted = Files
                 .list(resultDirectory)
@@ -69,17 +70,23 @@ public final class QuaeroEvaluator {
                 .collect(Collectors.toList());
         final double size = quaeroCorpus.size() - alreadyCompleted.size();
 
-        logger.info("Already processed: {}", String.join(" ",alreadyCompleted));
+        logger.info("Already processed: {}", String.join(" ", alreadyCompleted));
 
-        if(size==0){
+        if (size == 0) {
             logger.info("Nothing to do! If you want to run again, change the result directory or delete {}", resultDirectory);
         }
         double progress = 0d;
         for (final Map.Entry<String, String> textEntry : quaeroCorpus) {
             //noinspection HardcodedFileSeparator
             if (!alreadyCompleted.contains(textEntry.getKey())) {
-                logger.info("\r[{}%] Annotating text '{}'", String.format("%2.2f", (progress / size) * PERCENT_MAX),textEntry.getKey());
-                qaeroAnnotator.annotateText(textEntry.getValue(), textEntry.getKey());
+                logger.warn("\r[{}%] Annotating text '{}'", String.format("%2.2f", (progress / size) * PERCENT_MAX), textEntry.getKey());
+                boolean success = false;
+                while (!success) {
+                    success = qaeroAnnotator.annotateText(textEntry.getValue(), textEntry.getKey());
+                    if (!success){
+                        logger.error("Failed annotation for {}, retrying", textEntry.getKey());
+                    }
+                }
                 progress += 1;
             }
         }

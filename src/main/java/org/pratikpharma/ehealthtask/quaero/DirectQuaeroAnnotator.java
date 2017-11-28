@@ -30,10 +30,11 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
     private String[] semanticGroups;
     private final String format;
     private final boolean expandMappings;
+    private final boolean uniqueGroups;
     private final Path resultPath;
 
     @SuppressWarnings("ConstructorWithTooManyParameters")
-    public DirectQuaeroAnnotator(final BioPortalAnnotator annotator, final UMLSGroupIndex groupIndex, final String[] ontologies, final String[] semanticGroups, final String format, final boolean expandMappings, final Path resultPath) throws IOException {
+    public DirectQuaeroAnnotator(final BioPortalAnnotator annotator, final UMLSGroupIndex groupIndex, final String[] ontologies, final String[] semanticGroups, final String format, final boolean expandMappings, final boolean uniqueGroups, final Path resultPath) throws IOException {
         this.annotator = annotator;
         this.groupIndex = groupIndex;
         if (ontologies != null) {
@@ -44,6 +45,7 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
         }
         this.format = format;
         this.expandMappings = expandMappings;
+        this.uniqueGroups = uniqueGroups;
         if (!Files.exists(resultPath)) {
             Files.createDirectory(resultPath);
         }
@@ -51,7 +53,8 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
     }
 
     @Override
-    public void annotateText(final String text, final String textId) throws IOException, NCBOAnnotatorErrorException, ParseException {
+    public boolean annotateText(final String text, final String textId) throws IOException, NCBOAnnotatorErrorException, ParseException {
+        boolean success = true;
         final Path outputFile = Paths.get(resultPath.toString(), textId + ".ann");
         String output = "";
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(outputFile))) {
@@ -81,7 +84,7 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
                     .format(format)
                     .semantic_groups(semanticGroups)
                     .lemmatize(false)
-                    .unique_groups(true);//.recognizer("unitex");
+                    .unique_groups(uniqueGroups);//.recognizer("unitex");
 
             if ((ontologies != null) && (ontologies.length > 0)) {
                 queryBuilder = queryBuilder.ontologies(ontologies);
@@ -102,11 +105,13 @@ public class DirectQuaeroAnnotator implements QaeroAnnotator {
         } catch (final IOException ioException) {
             logger.error(ioException.getLocalizedMessage());
             Files.delete(outputFile);
+            success = false;
         }
 
         if (output.contains("[{\"error\"")) {
             Files.delete(outputFile);
+            success=false;
         }
-
+        return success;
     }
 }

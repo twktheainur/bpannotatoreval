@@ -9,5 +9,5 @@ import java.io.IOException;
 @FunctionalInterface
 public interface QaeroAnnotator {
 
-    void annotateText(String text, String textId) throws IOException, NCBOAnnotatorErrorException, ParseException;
+    boolean annotateText(String text, String textId) throws IOException, NCBOAnnotatorErrorException, ParseException;
 }

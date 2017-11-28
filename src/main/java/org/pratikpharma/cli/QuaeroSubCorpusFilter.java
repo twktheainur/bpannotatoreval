@@ -48,9 +48,12 @@ final class QuaeroSubCorpusFilter {
 
         for (final Path annotationFile : Files
                 .list(corpusPath)
-                .filter(path -> path.getFileName().toString().endsWith("ann"))
+                .filter(path -> path
+                        .getFileName()
+                        .toString()
+                        .endsWith("ann"))
                 .collect(Collectors.toList())) {
-            handleAnnotationFile(annotationFile,cuiSet,targetCorpusPath);
+            handleAnnotationFile(annotationFile, cuiSet, targetCorpusPath);
 
         }
 
@@ -58,46 +61,62 @@ final class QuaeroSubCorpusFilter {
 
     private static void handleAnnotationFile(final Path annotationFile, final Collection<String> cuiSet, final Path targetCorpusPath) throws IOException {
         final String fileNameRoot = FILE_EXTENSION_SEPARATOR
-                .split(annotationFile.getFileName()
+                .split(annotationFile
+                        .getFileName()
                         .toString())[0];
-        final Path textFile = Paths.get(targetCorpusPath.toString(),fileNameRoot+".txt");
-        final Path targetAnnotationFile = Paths.get(targetCorpusPath.toString(),fileNameRoot+".ann");
-        Files.copy(Paths.get(annotationFile.getParent().toString(), fileNameRoot+".txt"),textFile);
+        final Path textFile = Paths.get(targetCorpusPath.toString(), fileNameRoot + ".txt");
+        final Path targetAnnotationFile = Paths.get(targetCorpusPath.toString(), fileNameRoot + ".ann");
+        Files.copy(Paths.get(annotationFile
+                .getParent()
+                .toString(), fileNameRoot + ".txt"), textFile);
         try (PrintWriter printWriter = new PrintWriter(Files.newBufferedWriter(targetAnnotationFile))) {
-            try(BufferedReader sourceReader = Files.newBufferedReader(annotationFile)){
-                String line = "";
+            try (BufferedReader sourceReader = Files.newBufferedReader(annotationFile)) {
+                String line = sourceReader.readLine();
                 //no inspect all
-                while(line!=null){
+                while (line != null) {
+                    final String annotationLine = line;
                     line = sourceReader.readLine();
-                    if(line!=null) {
-                        final String annotationLine = line;
-                        line = sourceReader.readLine();
-                        final String noteLine = line;
-                        if(line!=null) {
-                            final String[] noteFields = noteLine.split("\t");
-                            if (noteFields.length < 3) {
-                                logger.error("Invalid Format for current line");
-                                continue;
+                    final String noteLine = line;
+                    if (line != null) {
+                        final String[] noteFields = noteLine.split("\t");
+                        if (noteFields.length < 3) {
+                            logger.error("Invalid Format for current line");
+                            continue;
+                        }
+                        final String[] cuis = noteFields[2].split(",");
+                        final List<String> cuiList = Arrays.asList(cuis);
+                        final List<String> overlap = computeOverlap(cuiSet, cuiList);
+                        if (!overlap.isEmpty()) {
+                            printWriter.println(annotationLine);
+                            final StringBuilder noteBuilder = new StringBuilder();
+                            noteBuilder
+                                    .append(noteFields[0])
+                                    .append("\t")
+                                    .append(noteFields[1])
+                                    .append("\t");
+
+                            for (final String cui : overlap) {
+                                noteBuilder
+                                        .append(cui)
+                                        .append(",");
                             }
-                            final String[] cuis = noteFields[2].split(",");
-                            final List<String> cuiList = Arrays.asList(cuis);
-                            if (areAllCUIsFoundInReference(cuiSet, cuiList)) {
-                                printWriter.println(annotationLine);
-                                printWriter.println(noteLine);
-                            }
+                            printWriter.println(noteBuilder.substring(0, noteBuilder.length() - 1));
                         }
                     }
+
+                    line = sourceReader.readLine();
                 }
             }
         }
     }
 
-    private static boolean areAllCUIsFoundInReference(final Collection<String> cuiSet, final Iterable<String> cuis){
-        boolean found = true;
-        final Iterator<String> cuiIterator = cuis.iterator();
-        while(found && cuiIterator.hasNext()){
-            found = cuiSet.contains(cuiIterator.next());
+    private static List<String> computeOverlap(final Collection<String> cuiSet, final Iterable<String> cuis) {
+        final List<String> foundCUIs = new ArrayList<>();
+        for (final String cui : cuis) {
+            if (cuiSet.contains(cui)) {
+                foundCUIs.add(cui);
+            }
         }
-        return found;
+        return foundCUIs;
     }
 }
